@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MediReminder</string>
+    <string name="app_slogan">Never miss a dose</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="take">Take</string>
+    <string name="skip">Skip</string>
+    <string name="snooze">Snooze</string>
+</resources>

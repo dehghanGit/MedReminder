@@ -1,0 +1,21 @@
+CREATE TABLE TblAppSettings (
+    id                  INTEGER PRIMARY KEY CHECK (id = 1),
+    ownerName           TEXT,
+    remindersEnabled    INTEGER AS kotlin.Boolean NOT NULL DEFAULT 1,
+    soundEnabled        INTEGER AS kotlin.Boolean NOT NULL DEFAULT 1,
+    vibrationEnabled    INTEGER AS kotlin.Boolean NOT NULL DEFAULT 1,
+    snoozeMinutes       INTEGER AS kotlin.Int NOT NULL DEFAULT 10,
+    missedAfterMinutes  INTEGER AS kotlin.Int NOT NULL DEFAULT 60,
+    refillAlertsEnabled INTEGER AS kotlin.Boolean NOT NULL DEFAULT 1,
+    onboardingDone      INTEGER AS kotlin.Boolean NOT NULL DEFAULT 0,
+    updatedAt           INTEGER AS kotlinx.datetime.LocalDateTime NOT NULL
+);
+
+select:
+SELECT * FROM TblAppSettings WHERE id = 1;
+
+-- Single-row table, and every write sends the full row, so a plain replace is
+-- enough — upsert syntax needs SQLite 3.24, above this app's minimum Android level.
+upsert:
+INSERT OR REPLACE INTO TblAppSettings (id, ownerName, remindersEnabled, soundEnabled, vibrationEnabled, snoozeMinutes, missedAfterMinutes, refillAlertsEnabled, onboardingDone, updatedAt)
+VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?);

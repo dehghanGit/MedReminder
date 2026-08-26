@@ -1,0 +1,46 @@
+CREATE TABLE TblSchedule (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    medicationId  INTEGER NOT NULL,
+    scheduleType  TEXT    NOT NULL,
+    -- Comma separated "HH:mm" values, e.g. "08:00,20:00".
+    timesOfDay    TEXT    NOT NULL,
+    -- Dose taken at each time, in medication units.
+    quantity      REAL    NOT NULL DEFAULT 1.0,
+    -- SPECIFIC_DAYS: comma separated ISO day numbers 1..7 (Mon..Sun).
+    daysOfWeek    TEXT,
+    -- INTERVAL_DAYS: run every N days from startDate.
+    intervalDays  INTEGER AS kotlin.Int,
+    isActive      INTEGER AS kotlin.Boolean NOT NULL DEFAULT 1,
+    createdAt     INTEGER AS kotlinx.datetime.LocalDateTime NOT NULL,
+    updatedAt     INTEGER AS kotlinx.datetime.LocalDateTime NOT NULL,
+    FOREIGN KEY (medicationId) REFERENCES TblMedication(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_schedule_medication ON TblSchedule(medicationId);
+
+selectAllActive:
+SELECT * FROM TblSchedule WHERE isActive = 1;
+
+selectByMedication:
+SELECT * FROM TblSchedule WHERE medicationId = ? ORDER BY id ASC;
+
+selectById:
+SELECT * FROM TblSchedule WHERE id = ?;
+
+insert:
+INSERT INTO TblSchedule (medicationId, scheduleType, timesOfDay, quantity, daysOfWeek, intervalDays, isActive, createdAt, updatedAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE TblSchedule
+SET scheduleType = ?, timesOfDay = ?, quantity = ?, daysOfWeek = ?, intervalDays = ?, isActive = ?, updatedAt = ?
+WHERE id = ?;
+
+deleteById:
+DELETE FROM TblSchedule WHERE id = ?;
+
+deleteByMedication:
+DELETE FROM TblSchedule WHERE medicationId = ?;
+
+lastInsertedId:
+SELECT last_insert_rowid();

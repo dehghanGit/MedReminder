@@ -1,0 +1,50 @@
+CREATE TABLE TblMedication (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    name          TEXT    NOT NULL,
+    form          TEXT    NOT NULL,
+    strength      REAL,
+    strengthUnit  TEXT    NOT NULL,
+    color         TEXT    NOT NULL,
+    instructions  TEXT,
+    notes         TEXT,
+    stockCount    REAL,
+    refillAt      REAL,
+    startDate     TEXT    AS kotlinx.datetime.LocalDate NOT NULL,
+    endDate       TEXT    AS kotlinx.datetime.LocalDate,
+    isArchived    INTEGER AS kotlin.Boolean NOT NULL DEFAULT 0,
+    createdAt     INTEGER AS kotlinx.datetime.LocalDateTime NOT NULL,
+    updatedAt     INTEGER AS kotlinx.datetime.LocalDateTime NOT NULL
+);
+
+CREATE INDEX idx_medication_archived ON TblMedication(isArchived);
+
+selectAll:
+SELECT * FROM TblMedication ORDER BY name ASC;
+
+selectActive:
+SELECT * FROM TblMedication WHERE isArchived = 0 ORDER BY name ASC;
+
+selectById:
+SELECT * FROM TblMedication WHERE id = ?;
+
+insert:
+INSERT INTO TblMedication (name, form, strength, strengthUnit, color, instructions, notes, stockCount, refillAt, startDate, endDate, isArchived, createdAt, updatedAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE TblMedication
+SET name = ?, form = ?, strength = ?, strengthUnit = ?, color = ?, instructions = ?, notes = ?,
+    stockCount = ?, refillAt = ?, startDate = ?, endDate = ?, isArchived = ?, updatedAt = ?
+WHERE id = ?;
+
+adjustStock:
+UPDATE TblMedication SET stockCount = stockCount - ?, updatedAt = ? WHERE id = ? AND stockCount IS NOT NULL;
+
+setArchived:
+UPDATE TblMedication SET isArchived = ?, updatedAt = ? WHERE id = ?;
+
+deleteById:
+DELETE FROM TblMedication WHERE id = ?;
+
+lastInsertedId:
+SELECT last_insert_rowid();

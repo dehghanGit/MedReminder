@@ -1,0 +1,55 @@
+CREATE TABLE TblDoseLog (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    medicationId INTEGER NOT NULL,
+    scheduleId   INTEGER,
+    date         TEXT    AS kotlinx.datetime.LocalDate NOT NULL,
+    scheduledAt  INTEGER AS kotlinx.datetime.LocalDateTime NOT NULL,
+    status       TEXT    NOT NULL,
+    quantity     REAL    NOT NULL,
+    takenAt      INTEGER AS kotlinx.datetime.LocalDateTime,
+    note         TEXT,
+    createdAt    INTEGER AS kotlinx.datetime.LocalDateTime NOT NULL,
+    updatedAt    INTEGER AS kotlinx.datetime.LocalDateTime NOT NULL,
+    FOREIGN KEY (medicationId) REFERENCES TblMedication(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_doselog_date ON TblDoseLog(date);
+CREATE UNIQUE INDEX idx_doselog_slot ON TblDoseLog(medicationId, scheduleId, scheduledAt);
+
+selectByDate:
+SELECT * FROM TblDoseLog WHERE date = ? ORDER BY scheduledAt ASC;
+
+selectBetween:
+SELECT * FROM TblDoseLog WHERE date >= ? AND date <= ? ORDER BY scheduledAt ASC;
+
+selectByMedicationBetween:
+SELECT * FROM TblDoseLog WHERE medicationId = ? AND date >= ? AND date <= ? ORDER BY scheduledAt ASC;
+
+selectById:
+SELECT * FROM TblDoseLog WHERE id = ?;
+
+selectPendingBefore:
+SELECT * FROM TblDoseLog WHERE status = 'PENDING' AND scheduledAt < ? ORDER BY scheduledAt ASC;
+
+countByStatusBetween:
+SELECT status, COUNT(*) AS total FROM TblDoseLog
+WHERE date >= ? AND date <= ? GROUP BY status;
+
+insert:
+INSERT OR IGNORE INTO TblDoseLog (medicationId, scheduleId, date, scheduledAt, status, quantity, takenAt, note, createdAt, updatedAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateStatus:
+UPDATE TblDoseLog SET status = ?, takenAt = ?, note = ?, updatedAt = ? WHERE id = ?;
+
+reschedule:
+UPDATE TblDoseLog SET scheduledAt = ?, status = 'PENDING', updatedAt = ? WHERE id = ?;
+
+markOverdueAsMissed:
+UPDATE TblDoseLog SET status = 'MISSED', updatedAt = ? WHERE status = 'PENDING' AND scheduledAt < ?;
+
+deleteByMedication:
+DELETE FROM TblDoseLog WHERE medicationId = ?;
+
+deleteFutureForSchedule:
+DELETE FROM TblDoseLog WHERE scheduleId = ? AND status = 'PENDING' AND scheduledAt >= ?;
