@@ -52,3 +52,7 @@ fun Set<Int>.encodeDays(): String? = if (isEmpty()) null else sorted().joinToStr
 
 fun String?.decodeDays(): Set<Int> =
     this?.split(",")?.mapNotNull { it.trim().toIntOrNull() }?.filter { it in 1..7 }?.toSet().orEmpty()
+
+/** Same wire format as [encodeDays], but for calendar days-of-month (1..31). */
+fun String?.decodeDaysOfMonth(): Set<Int> =
+    this?.split(",")?.mapNotNull { it.trim().toIntOrNull() }?.filter { it in 1..31 }?.toSet().orEmpty()

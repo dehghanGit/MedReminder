@@ -72,7 +72,8 @@ private object TodayTab : Tab {
         val navigator = LocalNavigator.currentOrThrow.let { it.parent ?: it }
         TodayScreen(
             onAddMedication = { navigator.push(MedicationEditVoyagerScreen(0L)) },
-            onOpenHistory = { navigator.push(HistoryVoyagerScreen) }
+            onOpenHistory = { navigator.push(HistoryVoyagerScreen) },
+            onEditMedication = { id -> navigator.push(MedicationEditVoyagerScreen(id)) }
         )
     }
 }

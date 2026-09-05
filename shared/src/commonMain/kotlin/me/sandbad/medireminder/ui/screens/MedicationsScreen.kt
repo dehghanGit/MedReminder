@@ -196,6 +196,7 @@ private fun List<Schedule>.summary(): String {
             ScheduleType.DAILY -> "Every day"
             ScheduleType.SPECIFIC_DAYS -> schedule.daysOfWeek.sorted().joinToString(", ") { dayName(it) }
             ScheduleType.INTERVAL_DAYS -> "Every ${schedule.intervalDays ?: 1} days"
+            ScheduleType.MONTHLY_DAYS -> "Monthly on " + schedule.daysOfMonth.sorted().joinToString(", ") { ordinal(it) }
             ScheduleType.AS_NEEDED -> "As needed"
         }
         val times = schedule.timesOfDay.joinToString(", ") { it.formatHm() }
@@ -205,4 +206,12 @@ private fun List<Schedule>.summary(): String {
 
 internal fun dayName(isoDay: Int): String = when (isoDay) {
     1 -> "Mon"; 2 -> "Tue"; 3 -> "Wed"; 4 -> "Thu"; 5 -> "Fri"; 6 -> "Sat"; else -> "Sun"
+}
+
+/** "1st", "2nd", "23rd" … */
+internal fun ordinal(day: Int): String {
+    val suffix = if (day in 11..13) "th" else when (day % 10) {
+        1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th"
+    }
+    return "$day$suffix"
 }

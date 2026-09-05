@@ -26,6 +26,7 @@ class DoseSchedulerTest {
         type: ScheduleType,
         times: List<LocalTime> = listOf(LocalTime(8, 0), LocalTime(20, 0)),
         days: Set<Int> = emptySet(),
+        monthDays: Set<Int> = emptySet(),
         interval: Int? = null
     ) = Schedule(
         id = 1,
@@ -33,6 +34,7 @@ class DoseSchedulerTest {
         scheduleType = type,
         timesOfDay = times,
         daysOfWeek = days,
+        daysOfMonth = monthDays,
         intervalDays = interval
     )
 
@@ -74,6 +76,14 @@ class DoseSchedulerTest {
         assertTrue(DoseScheduler.occursOn(medication(), everyThirdDay, start))
         assertFalse(DoseScheduler.occursOn(medication(), everyThirdDay, LocalDate(2026, 1, 6)))
         assertTrue(DoseScheduler.occursOn(medication(), everyThirdDay, LocalDate(2026, 1, 8)))
+    }
+
+    @Test
+    fun monthlySchedulesFireOnListedCalendarDays() {
+        val firstAndFifteenth = schedule(ScheduleType.MONTHLY_DAYS, monthDays = setOf(1, 15))
+        assertTrue(DoseScheduler.occursOn(medication(), firstAndFifteenth, LocalDate(2026, 1, 15)))
+        assertTrue(DoseScheduler.occursOn(medication(), firstAndFifteenth, LocalDate(2026, 2, 1)))
+        assertFalse(DoseScheduler.occursOn(medication(), firstAndFifteenth, LocalDate(2026, 1, 14)))
     }
 
     @Test

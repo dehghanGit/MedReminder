@@ -28,6 +28,9 @@ enum class ScheduleType(val label: String) {
     /** Every N days counting from the medication start date. */
     INTERVAL_DAYS("Every N days"),
 
+    /** On the calendar days-of-month listed in [Schedule.daysOfMonth], e.g. the 1st and 15th. */
+    MONTHLY_DAYS("Monthly"),
+
     /** No automatic reminders — the user logs doses manually. */
     AS_NEEDED("As needed")
 }

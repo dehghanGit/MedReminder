@@ -1,6 +1,7 @@
 package me.sandbad.medireminder.core.repository.impl
 
 import me.sandbad.medireminder.core.decodeDays
+import me.sandbad.medireminder.core.decodeDaysOfMonth
 import me.sandbad.medireminder.core.decodeTimes
 import me.sandbad.medireminder.core.model.AppSettings
 import me.sandbad.medireminder.core.model.DoseLog
@@ -41,6 +42,7 @@ internal fun TblSchedule.toModel() = Schedule(
     timesOfDay = timesOfDay.decodeTimes(),
     quantity = quantity,
     daysOfWeek = daysOfWeek.decodeDays(),
+    daysOfMonth = daysOfMonth.decodeDaysOfMonth(),
     intervalDays = intervalDays,
     isActive = isActive,
     createdAt = createdAt,

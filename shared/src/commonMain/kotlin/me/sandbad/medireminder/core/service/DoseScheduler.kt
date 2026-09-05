@@ -27,6 +27,7 @@ object DoseScheduler {
                 val step = schedule.intervalDays ?: return false
                 if (step <= 0) false else medication.startDate.daysUntil(date) % step == 0
             }
+            ScheduleType.MONTHLY_DAYS -> date.dayOfMonth in schedule.daysOfMonth
             ScheduleType.AS_NEEDED -> false
         }
     }

@@ -10,6 +10,7 @@ import me.sandbad.medireminder.core.repository.impl.DoseLogRepositoryImpl
 import me.sandbad.medireminder.core.repository.impl.MedicationRepositoryImpl
 import me.sandbad.medireminder.core.repository.impl.ScheduleRepositoryImpl
 import me.sandbad.medireminder.core.service.AdherenceService
+import me.sandbad.medireminder.core.service.DemoDataSeeder
 import me.sandbad.medireminder.core.service.MedicationService
 import me.sandbad.medireminder.ui.viewmodel.HistoryViewModel
 import me.sandbad.medireminder.ui.viewmodel.MedicationEditViewModel
@@ -34,9 +35,10 @@ val appModule = module {
 
     single { MedicationService(get(), get(), get(), get(), get()) }
     single { AdherenceService(get(), get()) }
+    single { DemoDataSeeder(get(), get(), get(), get()) }
 
     viewModel { OnboardingViewModel(get(), get()) }
-    viewModel { TodayViewModel(get(), get()) }
+    viewModel { TodayViewModel(get(), get(), get()) }
     viewModel { MedicationsViewModel(get(), get(), get()) }
     viewModel { MedicationEditViewModel(get(), get(), get()) }
     viewModel { HistoryViewModel(get(), get()) }

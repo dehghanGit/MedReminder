@@ -1,0 +1,2 @@
+-- v1 -> v2: monthly schedules store their calendar days-of-month here.
+ALTER TABLE TblSchedule ADD COLUMN daysOfMonth TEXT;

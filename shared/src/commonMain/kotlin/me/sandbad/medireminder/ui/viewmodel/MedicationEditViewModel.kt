@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.isoDayNumber
 import me.sandbad.medireminder.core.model.MedColor
 import me.sandbad.medireminder.core.model.Medication
 import me.sandbad.medireminder.core.model.MedicationForm
@@ -36,9 +37,10 @@ data class MedicationEditState(
     val startDate: LocalDate = today(),
     val endDate: LocalDate? = null,
     val scheduleType: ScheduleType = ScheduleType.DAILY,
-    val times: List<LocalTime> = listOf(LocalTime(9, 0)),
+    val times: List<LocalTime> = listOf(LocalTime(8, 0)),
     val quantity: String = "1",
-    val daysOfWeek: Set<Int> = (1..7).toSet(),
+    val daysOfWeek: Set<Int> = setOf(today().dayOfWeek.isoDayNumber),
+    val daysOfMonth: Set<Int> = setOf(today().dayOfMonth),
     val intervalDays: String = "2",
     val scheduleId: Long = 0,
     val nameError: String? = null,
@@ -46,6 +48,10 @@ data class MedicationEditState(
 ) {
     val isEditing: Boolean get() = id != 0L
     val needsTimes: Boolean get() = scheduleType != ScheduleType.AS_NEEDED
+
+    /** The whole-days repeat interval a DAILY/INTERVAL_DAYS schedule uses (1 = every day). */
+    val dailyInterval: Int
+        get() = if (scheduleType == ScheduleType.INTERVAL_DAYS) intervalDays.toIntOrNull()?.coerceAtLeast(2) ?: 2 else 1
 }
 
 /** Backs both "add medication" and "edit medication" — a single schedule per medication. */
@@ -87,7 +93,8 @@ class MedicationEditViewModel(
                 scheduleType = schedule?.scheduleType ?: ScheduleType.DAILY,
                 times = schedule?.timesOfDay?.takeIf { it.isNotEmpty() } ?: listOf(LocalTime(9, 0)),
                 quantity = schedule?.quantity?.toString() ?: "1",
-                daysOfWeek = schedule?.daysOfWeek?.takeIf { it.isNotEmpty() } ?: (1..7).toSet(),
+                daysOfWeek = schedule?.daysOfWeek?.takeIf { it.isNotEmpty() } ?: setOf(med.startDate.dayOfWeek.isoDayNumber),
+                daysOfMonth = schedule?.daysOfMonth?.takeIf { it.isNotEmpty() } ?: setOf(med.startDate.dayOfMonth),
                 intervalDays = schedule?.intervalDays?.toString() ?: "2",
                 scheduleId = schedule?.id ?: 0L
             )
@@ -109,9 +116,42 @@ class MedicationEditViewModel(
     fun setQuantity(value: String) = _state.update { it.copy(quantity = value) }
     fun setIntervalDays(value: String) = _state.update { it.copy(intervalDays = value) }
 
+    /** Switch to the "Daily" family, preserving any custom repeat interval. */
+    fun selectDaily() = _state.update {
+        it.copy(scheduleType = if ((it.intervalDays.toIntOrNull() ?: 1) > 1) ScheduleType.INTERVAL_DAYS else ScheduleType.DAILY)
+    }
+
+    fun selectWeekly() = _state.update {
+        it.copy(
+            scheduleType = ScheduleType.SPECIFIC_DAYS,
+            daysOfWeek = it.daysOfWeek.ifEmpty { setOf(it.startDate.dayOfWeek.isoDayNumber) }
+        )
+    }
+
+    fun selectMonthly() = _state.update {
+        it.copy(
+            scheduleType = ScheduleType.MONTHLY_DAYS,
+            daysOfMonth = it.daysOfMonth.ifEmpty { setOf(it.startDate.dayOfMonth) }
+        )
+    }
+
+    /** Repeat every [days] days (1 = every day, 2 = every other day, …). */
+    fun setDailyInterval(days: Int) = _state.update {
+        val n = days.coerceAtLeast(1)
+        it.copy(
+            scheduleType = if (n <= 1) ScheduleType.DAILY else ScheduleType.INTERVAL_DAYS,
+            intervalDays = n.toString()
+        )
+    }
+
     fun toggleDay(isoDay: Int) = _state.update {
         val days = if (isoDay in it.daysOfWeek) it.daysOfWeek - isoDay else it.daysOfWeek + isoDay
-        it.copy(daysOfWeek = days)
+        it.copy(daysOfWeek = days.ifEmpty { it.daysOfWeek }) // keep at least one day selected
+    }
+
+    fun toggleDayOfMonth(day: Int) = _state.update {
+        val days = if (day in it.daysOfMonth) it.daysOfMonth - day else it.daysOfMonth + day
+        it.copy(daysOfMonth = days.ifEmpty { it.daysOfMonth })
     }
 
     fun addTime(time: LocalTime) = _state.update {
@@ -151,6 +191,7 @@ class MedicationEditViewModel(
                 timesOfDay = if (current.needsTimes) current.times else emptyList(),
                 quantity = current.quantity.replace(',', '.').toDoubleOrNull() ?: 1.0,
                 daysOfWeek = if (current.scheduleType == ScheduleType.SPECIFIC_DAYS) current.daysOfWeek else emptySet(),
+                daysOfMonth = if (current.scheduleType == ScheduleType.MONTHLY_DAYS) current.daysOfMonth else emptySet(),
                 intervalDays = current.intervalDays.toIntOrNull()
                     ?.takeIf { current.scheduleType == ScheduleType.INTERVAL_DAYS }
             )

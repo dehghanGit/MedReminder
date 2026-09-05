@@ -42,6 +42,8 @@ data class Schedule(
     val quantity: Double = 1.0,
     /** ISO day numbers, 1 = Monday .. 7 = Sunday. Only used by [ScheduleType.SPECIFIC_DAYS]. */
     val daysOfWeek: Set<Int> = emptySet(),
+    /** Calendar days of the month, 1..31. Only used by [ScheduleType.MONTHLY_DAYS]. */
+    val daysOfMonth: Set<Int> = emptySet(),
     val intervalDays: Int? = null,
     val isActive: Boolean = true,
     val createdAt: LocalDateTime = currentDateTime(),

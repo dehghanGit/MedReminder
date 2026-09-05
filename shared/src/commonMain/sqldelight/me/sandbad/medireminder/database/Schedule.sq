@@ -8,6 +8,8 @@ CREATE TABLE TblSchedule (
     quantity      REAL    NOT NULL DEFAULT 1.0,
     -- SPECIFIC_DAYS: comma separated ISO day numbers 1..7 (Mon..Sun).
     daysOfWeek    TEXT,
+    -- MONTHLY_DAYS: comma separated calendar days-of-month 1..31.
+    daysOfMonth   TEXT,
     -- INTERVAL_DAYS: run every N days from startDate.
     intervalDays  INTEGER AS kotlin.Int,
     isActive      INTEGER AS kotlin.Boolean NOT NULL DEFAULT 1,
@@ -28,12 +30,12 @@ selectById:
 SELECT * FROM TblSchedule WHERE id = ?;
 
 insert:
-INSERT INTO TblSchedule (medicationId, scheduleType, timesOfDay, quantity, daysOfWeek, intervalDays, isActive, createdAt, updatedAt)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO TblSchedule (medicationId, scheduleType, timesOfDay, quantity, daysOfWeek, daysOfMonth, intervalDays, isActive, createdAt, updatedAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 update:
 UPDATE TblSchedule
-SET scheduleType = ?, timesOfDay = ?, quantity = ?, daysOfWeek = ?, intervalDays = ?, isActive = ?, updatedAt = ?
+SET scheduleType = ?, timesOfDay = ?, quantity = ?, daysOfWeek = ?, daysOfMonth = ?, intervalDays = ?, isActive = ?, updatedAt = ?
 WHERE id = ?;
 
 deleteById:

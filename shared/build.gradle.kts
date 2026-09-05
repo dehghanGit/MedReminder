@@ -154,7 +154,7 @@ sqldelight {
     databases {
         create("AppDatabase") {
             packageName.set("me.sandbad.medireminder.sqldelight")
-            version = 1
+            version = 2
         }
     }
 }
